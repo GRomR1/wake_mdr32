@@ -3,8 +3,8 @@
 Реализация протокола WAKE для МК серии MDR32F9Q2I (1986ВЕ92У, К1986ВЕ92QI)
 -------------------------------
 
-![logo_wake](Logo\logo_wake.gif)
-![logo_milandr](Logo\logo_milandr.jpg)
+![logo_wake](Logo/logo_wake.gif)
+![logo_milandr](Logo/logo_milandr.jpg)
 
 Протокол Wake был создан специально для реализации связи между компьютером (или управляющим контроллером) и внешними микроконтроллерными устройствами.
 
