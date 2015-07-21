@@ -1,0 +1,18 @@
+# ignore files
+*.d
+*.o
+*.crf
+*.axf
+*.htm
+*.hex
+*.lnp
+*.map
+*.1
+*.bak
+*.uvopt
+*.iex
+*.dep
+*.lst
+*.sct
+JLinkLog.txt
+JLinkSettings.ini
