@@ -14,7 +14,7 @@
 #define TFEND 0xDC    //Transposed Frame END
 #define TFESC 0xDD    //Transposed Frame ESCape
 #define CRC_INIT 0xDE //Innitial CRC value
-#define FRAME 16      //максимальная длина пакета
+#define FRAME 255     //максимальная длина пакета (полезных данных)
 
 //RX process states:
 

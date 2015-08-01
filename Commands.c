@@ -11,7 +11,7 @@
 
 //------------------------------- Переменные: --------------------------------
 
-const char Info[] = {"MDR32F9Q2 Rev2.0\0"}; //имя устройства
+const char Info[] = {"MDR32F9Q2 Rev2.0\n\0"}; //имя устройства
 
 extern char Rx_Cmd,          //принятая команда
             Rx_Nbt,          //принятое количество байт в пакете
@@ -23,6 +23,12 @@ extern char Tx_Cmd,          //команда, передаваемая в па�
             Tx_Nbt,          //количество байт данных в пакете
             Tx_Dat[FRAME];   //массив данных для передачи
 
+
+bool _powerStatus = false;
+bool _lightStatus = false;
+bool _highTemperature = false;
+bool _hookWarning = false;
+bool _currentMode = true; //Опоры или Cтойка, стрела, лебедка (1/0)
 //----------------------------------------------------------------------------
 
 //---------------------- Передача ответа на команду: -------------------------
@@ -63,54 +69,115 @@ void Commands_Exe(void)
       Tx_Replay(i, Tx_Dat[0]);
       break;
     }
-  case CMD_SETMODE: //установка режима управления
+  case soundSignal: //гудок
     {
-      //cnLock = Rx_Dat[0] & 0x01;
-      //cnMute = Rx_Dat[0] & 0x02;
-      //Menu_Lock(cnLock, cnMute);
+			//if(Rx_Dat[0] == 1) "гудим" else "не гудим";
+			//Tx_Replay(1, ERR_NO);
+      break;
+    }
+  case speedButton: //скорость
+    {
+			//if(Rx_Dat[0] == 1) "быстро" else "медленно";
+			//Tx_Replay(1, ERR_NO);
+      break;
+    }
+  case modeCrOrP: //режим работы (Опоры или Cтойка, стрела, лебедка)
+    {
+			//if(Rx_Dat[0] == 1) "Опоры" else "Cтойка, стрела, лебедка";
+			if(Rx_Dat[0] == 1 || Rx_Dat[0] == 0)
+				_currentMode = Rx_Dat[0];
+			Tx_Replay(1, _currentMode);
+      break;
+    }
+  case modeCrOrPStatus: //режим работы (Опоры или Cтойка, стрела, лебедка)
+    {
+			//if(Rx_Dat[0] == 1) "Опоры" else "Cтойка, стрела, лебедка";
+			//if(Rx_Dat[0] == 3)
+			Tx_Replay(1, _currentMode);
+      break;
+    }
+  case powerButton: //включить питание 
+    {
+			if(Rx_Dat[0] == 1 || Rx_Dat[0] == 0)
+				_powerStatus=Rx_Dat[0];
+			Tx_Replay(1, _powerStatus);
+      break;
+    }
+	case powerStatus: //узнать включено ли питание 
+    {
+			Tx_Replay(1, _powerStatus);
+      break;
+    }
+  case lightButton: //включить свет
+    {			
+			if(Rx_Dat[0] == 1 || Rx_Dat[0] == 0)
+				_lightStatus=Rx_Dat[0];
+			Tx_Replay(1, _lightStatus);
+      break;
+    }
+	case lightStatus: //узнать включен ли свет 
+    {
+			Tx_Replay(1, _lightStatus);
+      break;
+    }
+	case highTemperature: //узнать есть ли опасность перегрева РЖ
+    {
+			Tx_Replay(1, _highTemperature);
+      break;
+    }
+	case hookWarning: //узнать перекручен ли трос лебедки
+    {
+			Tx_Replay(1, _hookWarning);
+      break;
+    }
+  case pillar: //поворот стойки
+    {
+			//if(Rx_Dat[0] == ??) ... else ...;
+			#if SEND_REPLY
       Tx_Replay(1, ERR_NO);
+			#endif
       break;
     }
-  case CMD_GETMODE: //чтение режима управления
+  case derrick: //подъем или опускание подъемной стрелы
     {
-      //char d = 0;
-      //if(cnLock) d |= 0x01;
-      //if(cnMute) d |= 0x02;
-      //Tx_Dat[1] = d;
-      Tx_Replay(2, ERR_NO);
-      break;
-    }
-  case CMD_SETPAR: //установка параметра
-    {
-      //char n = Rx_Dat[0];         //номер параметра
-      //char c = Rx_Dat[1];         //номер канала
-      //long par = DWORD(Rx_Dat[5], Rx_Dat[4], Rx_Dat[3], Rx_Dat[2]);
-      //Menu_SetPar(n, c, par);     //установка параметра
+			#if SEND_REPLY
       Tx_Replay(1, ERR_NO);
+			#endif
       break;
     }
-  case CMD_GETPAR: //чтение параметра
+  case outrigger: //подъем или опускание выносной стрелы
     {
-      //long par = Menu_GetPar(Rx_Dat[0], Rx_Dat[1]);
-      //Tx_Dat[1] = BYTE1(par);
-      //Tx_Dat[2] = BYTE2(par);
-      //Tx_Dat[3] = BYTE3(par);
-      //Tx_Dat[4] = BYTE4(par);
-      Tx_Replay(5, ERR_NO);
+			#if SEND_REPLY
+      Tx_Replay(1, ERR_NO);
+			#endif
       break;
     }
-  case CMD_GETSELPAR: //чтение текущего параметра
+  case telescopic: //выдвижение или втягивание телескопической стрелы
     {
-      //char n = Menu_GetSelPar();  //номер параметра
-      //char c = Menu_GetSelChan(); //номер канала
-      //long par = Menu_GetPar(n, c);
-      //Tx_Dat[1] = n;
-      //Tx_Dat[2] = c;
-      //Tx_Dat[3] = BYTE1(par);
-      //Tx_Dat[4] = BYTE2(par);
-      //Tx_Dat[5] = BYTE3(par);
-      //Tx_Dat[6] = BYTE4(par);
-      Tx_Replay(7, ERR_NO);
+			#if SEND_REPLY
+      Tx_Replay(1, ERR_NO);
+			#endif
+      break;
+    }
+  case hook: //подъем или опускание лебедки
+    {
+			#if SEND_REPLY
+      Tx_Replay(1, ERR_NO);
+			#endif
+      break;
+    }
+  case leftCrutch: //подъем или опускание левой опоры
+    {
+			#if SEND_REPLY
+      Tx_Replay(1, ERR_NO);
+			#endif
+      break;
+    }
+  case rightCrutch: //подъем или опускание правой опоры
+    {
+			#if SEND_REPLY
+      Tx_Replay(1, ERR_NO);
+			#endif
       break;
     }
   }

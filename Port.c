@@ -5,6 +5,7 @@
 //----------------------------------------------------------------------------
 
 #include "Port.h"
+#include "led.h"
 
 //------------------------------- Переменные: --------------------------------
 
@@ -272,14 +273,24 @@ void Do_Crc8(char b, char *crc)
 void Port_StartWrite(void)
 {
   char data_byte = FEND;
+	int countByte = 0;
   Tx_Crc = CRC_INIT;                  //инициализация CRC,
   Do_Crc8(data_byte, &Tx_Crc);        //обновление CRC
   Tx_Sta = SEND_ADDR;
   Tx_Pre = TFEND;
 	MDR_UART2->DR = data_byte;
 	do
+	{
 		Port_Write();
-	while(Tx_Sta != SEND_IDLE);
+		countByte++;
+	}
+	while(Tx_Sta != SEND_IDLE || countByte<518);
+	//if(Tx_Sta == 0x02)
+	if(countByte>=518)
+	{
+		led0_set();
+		Tx_Sta = SEND_IDLE;
+	}
 }
 
 //---------------------- Проверка окончания передачи: ------------------------
